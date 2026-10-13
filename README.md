@@ -130,7 +130,8 @@ provide kick, ban, whitelist or offline player history features.
 
 This project is free to use, copy, modify and redistribute under the
 [BSD 2-Clause License](LICENSE). Redistributions must keep the original
-copyright notice and license text, including the attribution to **RepGraphics**.
+copyright notice and license text, including the attribution to
+**Aquadactyl contributors**.
 
 ## Build and test
 
