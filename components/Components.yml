@@ -1,0 +1,8 @@
+Navigation:
+  Routes:
+    - Name: "Players"
+      Path: "/players"
+      Type: "server"
+      Component: "PlayersPage"
+      Permission: "'control.console'"
+      AdminOnly: false

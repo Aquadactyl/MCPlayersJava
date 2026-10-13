@@ -1,0 +1,49 @@
+name: Build Blueprint
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    tags:
+      - "v*"
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install test dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build Blueprint package
+        run: npm run package
+
+      - name: Upload Blueprint artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcplayers-blueprint
+          path: |
+            dist/mcplayers.blueprint
+            dist/mcplayers.blueprint.sha256
+          if-no-files-found: error

@@ -1,0 +1,18 @@
+info:
+  name: "Minecraft Players"
+  identifier: "mcplayers"
+  description: "Minecraft player lists, Nitrocraft skins, server actions and saved inventory snapshots."
+  version: "1.1.0"
+  target: "beta-2026-08"
+  author: "RepGraphics"
+  icon: "assets/icon.svg"
+admin:
+  view: "admin/view.blade.php"
+dashboard:
+  components: "components"
+data:
+  directory: "private"
+requests:
+  app: "app"
+  routers:
+    client: "routes/client.php"
