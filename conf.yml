@@ -2,7 +2,7 @@ info:
   name: "Minecraft Players"
   identifier: "mcplayers"
   description: "Minecraft player lists, Nitrocraft skins, server actions and saved inventory snapshots."
-  version: "1.1.0"
+  version: "1.1.1"
   target: "beta-2026-08"
   author: "RepGraphics"
   icon: "assets/icon.svg"

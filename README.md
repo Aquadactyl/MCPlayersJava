@@ -11,6 +11,7 @@ The installable package is [`dist/mcplayers.blueprint`](dist/mcplayers.blueprint
 - Automatic refresh every 15 seconds while the page is visible, a manual refresh button and an optional polling toggle.
 - A responsive charcoal interface that uses the panel's configured primary colour.
 - Local pixel avatars; no third-party skin service, external player API, RCON password or Minecraft plugin.
+- Saved inventory snapshots support both standard Java `world/playerdata` files and Aquadactyl's `world/players/data` layout.
 - Permission checks, a 10-second shared server cache, a concurrency lock and bounded query timeouts.
 - An admin setup page and inline instructions for enabling the full list.
 

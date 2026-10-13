@@ -30,17 +30,25 @@ class InventoryService
         }
         // Server identity takes priority over Mojang skin identity on offline-mode servers.
         $uuid ??= $this->uuid($knownUuid) ? strtolower($knownUuid) : $this->offlineUuid($name);
-        $directory = '/' . $world . '/playerdata';
-        try {
-            $content = $this->files->read($server, $directory . '/' . $uuid . '.dat', 2097152);
-        } catch (DaemonConnectionException $exception) {
-            // Wings reports missing files as 500 on some versions, including when
-            // the world has not created its playerdata directory yet.
-            if (in_array($exception->getStatusCode(), [404, 500], true)) {
-                throw new HttpException(404, 'No saved inventory was found. The player may not have joined yet, or their UUID is missing from usercache.json.', $exception);
+        $paths = [
+            '/' . $world . '/playerdata/' . $uuid . '.dat',
+            '/' . $world . '/players/data/' . $uuid . '.dat',
+        ];
+        $content = null;
+        foreach ($paths as $path) {
+            try {
+                $content = $this->files->read($server, $path, 2097152);
+                break;
+            } catch (DaemonConnectionException $exception) {
+                // Wings reports missing files as 500 on some versions, including
+                // when a server uses a non-standard player data directory.
+                if (!in_array($exception->getStatusCode(), [404, 500], true)) {
+                    throw $exception;
+                }
             }
-
-            throw $exception;
+        }
+        if ($content === null) {
+            throw new HttpException(404, 'No saved inventory was found. The player may not have joined yet, or their UUID is missing from usercache.json.');
         }
         try {
             $snapshot = $this->snapshots->fromNbt($this->reader->parse($content));

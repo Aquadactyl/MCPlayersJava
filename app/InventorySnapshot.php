@@ -66,7 +66,7 @@ class InventorySnapshot
         if (!isset($data['count']) && is_int($count) && $count < 0) {
             $count &= 255;
         }
-        if (!is_string($id) || !preg_match('/\A[a-z0-9_.-]+:[a-z0-9_./-]+\z/', $id)
+        if (!is_string($id) || !preg_match('~\A[a-z0-9_.-]+:[a-z0-9_./-]+\z~', $id)
             || strlen($id) > 160 || !is_int($count) || $count < 1 || $count > 1000000 || $id === 'minecraft:air') {
             return null;
         }
