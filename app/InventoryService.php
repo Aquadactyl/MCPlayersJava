@@ -35,9 +35,11 @@ class InventoryService
             '/' . $world . '/players/data/' . $uuid . '.dat',
         ];
         $content = null;
+        $savedPath = null;
         foreach ($paths as $path) {
             try {
                 $content = $this->files->read($server, $path, 2097152);
+                $savedPath = $path;
                 break;
             } catch (DaemonConnectionException $exception) {
                 // Wings reports missing files as 500 on some versions, including
@@ -58,7 +60,7 @@ class InventoryService
 
         return $snapshot + [
             'source' => 'saved_file', 'player' => $name, 'uuid' => $uuid,
-            'saved_at' => null,
+            'saved_at' => $this->savedTime($server, $savedPath),
             'read_at' => now()->toIso8601String(),
             'state' => [
                 'operator' => $this->listed($server, '/ops.json', $name, $uuid),
@@ -92,6 +94,22 @@ class InventoryService
         $hex[16] = dechex((hexdec($hex[16]) & 3) | 8);
 
         return substr($hex, 0, 8) . '-' . substr($hex, 8, 4) . '-' . substr($hex, 12, 4) . '-' . substr($hex, 16, 4) . '-' . substr($hex, 20);
+    }
+
+    private function savedTime(Server $server, string $path): ?string
+    {
+        try {
+            foreach ($this->files->directory($server, dirname($path)) as $entry) {
+                if (($entry['name'] ?? null) === basename($path) && is_string($entry['modified'] ?? null)
+                    && strtotime($entry['modified']) !== false) {
+                    return $entry['modified'];
+                }
+            }
+        } catch (DaemonConnectionException) {
+            // A readable file remains inspectable if Wings cannot provide directory metadata.
+        }
+
+        return null;
     }
 
     private function uuid(mixed $value): bool

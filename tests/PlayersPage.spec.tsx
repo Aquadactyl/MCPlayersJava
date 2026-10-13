@@ -15,6 +15,14 @@ vi.mock("@/components/elements/ServerContentBlock", () => ({
 }));
 vi.mock("@/api/http", () => ({ httpErrorToHuman: (error: Error) => error.message }));
 vi.mock("@blueprint/extensions/mcplayers/api", () => ({ getPlayers: vi.fn() }));
+vi.mock("@blueprint/extensions/mcplayers/PlayerAvatar", () => ({ default: () => null }));
+vi.mock("@blueprint/extensions/mcplayers/PlayerDialog", () => ({
+  default: ({ player, onClose }: { player: { name: string }; onClose: () => void }) => (
+    <div role="dialog" aria-label={player.name}>
+      <button onClick={onClose}>Close profile</button>
+    </div>
+  ),
+}));
 
 const snapshot = (changes = {}) => ({
   status: "available" as const,
@@ -126,7 +134,9 @@ describe("installed Minecraft Players page", () => {
     mount();
     await screen.findByText("Alex");
     fireEvent.click(screen.getByRole("button", { name: "Copy Alex" }));
-    await screen.findByText("Copy failed. Select the name and copy it manually.");
+    expect(
+      await screen.findByText("Copy failed. Select the name and copy it manually."),
+    ).toBeTruthy();
   });
 
   it("stops polling when auto-refresh is switched off", async () => {
@@ -148,5 +158,33 @@ describe("installed Minecraft Players page", () => {
     mount();
     await screen.findByText("Minecraft Java servers only");
     expect(screen.queryByText("Players online")).toBeNull();
+  });
+
+  it("opens a listed player's profile and closes it", async () => {
+    mount();
+    await screen.findByText("Alex");
+    fireEvent.click(screen.getByRole("button", { name: "Manage Alex" }));
+    expect(screen.getByRole("dialog", { name: "Alex" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Close profile" }));
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
+  it("opens offline usernames and rejects command characters", async () => {
+    vi.mocked(getPlayers).mockResolvedValue(
+      snapshot({
+        capabilities: { moderate: true, operator: false, inventory: false },
+      }),
+    );
+    mount();
+    const input = await screen.findByRole("textbox", {
+      name: "Open any player, including offline players",
+    });
+    fireEvent.change(input, { target: { value: "Offline_Alex" } });
+    fireEvent.submit(input.closest("form")!);
+    expect(screen.getByRole("dialog", { name: "Offline_Alex" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Close profile" }));
+    fireEvent.change(input, { target: { value: "Alex;stop" } });
+    fireEvent.submit(input.closest("form")!);
+    expect(screen.queryByRole("dialog")).toBeNull();
   });
 });

@@ -30,6 +30,9 @@ export default function PlayersPage() {
   const [notice, setNotice] = useState("");
   const [lookup, setLookup] = useState("");
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
+  useEffect(() => {
+    setSelectedPlayer(null);
+  }, [uuid]);
   const query = useQuery({
     queryKey: ["mcplayers", uuid],
     queryFn: ({ signal }) => getPlayers(uuid, signal),
@@ -273,7 +276,7 @@ export default function PlayersPage() {
               <p>
                 Choose a Minecraft Java egg, or select Minecraft Java as the game query type in the
                 server's admin settings. A query type of None or globally disabled game queries
-                disables this page.
+                disables player listing.
               </p>
             </div>
           ) : !available ? (

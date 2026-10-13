@@ -35,6 +35,16 @@ echo 'Authenticated endpoint: HTTP ' . $response->getStatusCode() . PHP_EOL;
 if ($response->getStatusCode() !== 200 || ($payload['attributes']['status'] ?? null) !== 'available') {
     throw new RuntimeException(json_encode($payload, JSON_THROW_ON_ERROR));
 }
+echo 'Authenticated list: ' . json_encode([
+    'source' => $payload['attributes']['source'], 'complete' => $payload['attributes']['complete'],
+    'online' => $payload['attributes']['online'], 'players' => $payload['attributes']['players'],
+], JSON_THROW_ON_ERROR) . PHP_EOL;
+if ($result['source'] === 'query' && $payload['attributes']['source'] !== 'query') {
+    throw new RuntimeException('The installed endpoint must expose the working full Query source.');
+}
+if (($payload['attributes']['capabilities'] ?? null) !== ['moderate' => true, 'operator' => true, 'inventory' => true]) {
+    throw new RuntimeException('Administrator capabilities were not attached to the response.');
+}
 Auth::forgetGuards();
 $request = Request::create('/api/client/extensions/mcplayers/servers/' . $server->uuid . '/players', 'GET', [], [], [], ['HTTP_ACCEPT' => 'application/json']);
 $app->instance('request', $request);
@@ -53,5 +63,31 @@ $response = $kernel->handle($request);
 echo 'Unrelated user endpoint: HTTP ' . $response->getStatusCode() . PHP_EOL;
 if ($response->getStatusCode() !== 404) {
     throw new RuntimeException('Unrelated user must not see the server.');
+}
+
+// Exercise installed middleware and validation without sending any real command.
+$base = '/api/client/extensions/mcplayers/servers/' . $server->uuid . '/players/Alex';
+$admin = User::query()->where('root_admin', true)->firstOrFail();
+$cases = [
+    ['POST', $base . '/actions', null, ['action' => 'kick', 'confirmed' => true], 401],
+    ['GET', $base . '/inventory', null, [], 401],
+    ['POST', $base . '/actions', $outsider, ['action' => 'kick', 'confirmed' => true], 404],
+    ['GET', $base . '/inventory', $outsider, [], 404],
+    ['POST', $base . '/actions', $admin, ['action' => 'stop', 'confirmed' => true], 422],
+    ['POST', $base . '/actions', $admin, ['action' => 'ban'], 422],
+    ['GET', $base . '/inventory', $admin, ['uuid' => '../bad'], 422],
+];
+foreach ($cases as [$method, $path, $user, $parameters, $expected]) {
+    Auth::forgetGuards();
+    $request = Request::create($path, $method, $parameters, [], [], ['HTTP_ACCEPT' => 'application/json']);
+    $app->instance('request', $request);
+    if ($user) {
+        Auth::guard('sanctum')->setUser($user);
+    }
+    $response = $kernel->handle($request);
+    echo $method . ' ' . basename($path) . ' auth/validation: HTTP ' . $response->getStatusCode() . PHP_EOL;
+    if ($response->getStatusCode() !== $expected) {
+        throw new RuntimeException('Expected HTTP ' . $expected . ': ' . $response->getContent());
+    }
 }
 echo 'Runtime smoke test passed.' . PHP_EOL;

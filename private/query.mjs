@@ -81,7 +81,7 @@ export async function queryPlayers(target, query = (options) => GameDig.query(op
       port: target.queryPort,
     });
     // Other games also speak GameSpy. Do not list a non-Minecraft reply.
-    if (String(result.raw?.gamename).toLowerCase() !== "minecraft")
+    if (String(result.raw?.game_id ?? result.raw?.gamename).toLowerCase() !== "minecraft")
       throw new Error("Not Minecraft");
     return normalize(result, "query");
   } catch {

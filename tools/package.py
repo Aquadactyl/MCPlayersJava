@@ -12,7 +12,9 @@ for directory in ["admin", "app", "assets", "components", "private", "routes"]:
 with ZipFile(output, "w", compression=ZIP_DEFLATED, compresslevel=9) as archive:
     for path in sorted(files):
         name = path.relative_to(root).as_posix()
-        content = path.read_bytes().replace(b"\r\n", b"\n")
+        content = path.read_bytes()
+        if path.suffix.lower() in {".yml", ".yaml", ".md", ".php", ".ts", ".tsx", ".css", ".svg", ".mjs"} or path.name == "LICENSE":
+            content = content.replace(b"\r\n", b"\n")
         info = ZipInfo(name, date_time=(2026, 10, 13, 0, 0, 0))
         info.compress_type = ZIP_DEFLATED
         info.external_attr = 0o100644 << 16

@@ -1,17 +1,8 @@
 import React, { useState } from "react";
-import {
-  Apple,
-  BookOpen,
-  Boxes,
-  Crown,
-  Gem,
-  Package,
-  Pickaxe,
-  Shield,
-  Shirt,
-  Sword,
-} from "lucide-react";
+import { BookOpen, Crown } from "lucide-react";
 import { InventoryItem, InventorySnapshot } from "./api";
+import ItemIcon, { ITEM_RENDER_SOURCE } from "./ItemIcon";
+import PlayerVitals from "./PlayerVitals";
 
 const itemName = (id: string) =>
   id
@@ -19,24 +10,6 @@ const itemName = (id: string) =>
     .at(-1)!
     .replaceAll("_", " ")
     .replace(/\b\w/gu, (char) => char.toUpperCase());
-const icon = (id: string) =>
-  /sword|trident|mace/u.test(id)
-    ? Sword
-    : /pickaxe|axe|shovel|hoe/u.test(id)
-      ? Pickaxe
-      : /helmet|chestplate|leggings|boots/u.test(id)
-        ? Shirt
-        : /shield/u.test(id)
-          ? Shield
-          : /diamond|emerald|quartz/u.test(id)
-            ? Gem
-            : /apple|bread|beef|carrot|potato|porkchop/u.test(id)
-              ? Apple
-              : /book/u.test(id)
-                ? BookOpen
-                : /chest|shulker/u.test(id)
-                  ? Boxes
-                  : Package;
 
 export default function InventoryView({ data }: { data: InventorySnapshot }) {
   const [selected, setSelected] = useState<InventoryItem | null>(null);
@@ -46,7 +19,6 @@ export default function InventoryView({ data }: { data: InventorySnapshot }) {
       <div className={`mcp-slot-grid ${equipment ? "mcp-equipment-grid" : ""}`}>
         {slots.map((slot) => {
           const item = items.find((entry) => entry.slot === slot);
-          const Icon = item ? icon(item.id) : Package;
           const label = equipment
             ? (
                 { 103: "Head", 102: "Chest", 101: "Legs", 100: "Feet", 150: "Offhand" } as Record<
@@ -67,8 +39,8 @@ export default function InventoryView({ data }: { data: InventorySnapshot }) {
               >
                 {item && (
                   <>
-                    <Icon size={22} aria-hidden />
-                    <span>{item.count}</span>
+                    <ItemIcon id={item.id} />
+                    <span className="mcp-item-count">{item.count}</span>
                   </>
                 )}
               </button>
@@ -95,17 +67,7 @@ export default function InventoryView({ data }: { data: InventorySnapshot }) {
           </p>
         </div>
       </div>
-      <div className="mcp-player-vitals">
-        <span>
-          Health <strong>{data.health ?? "—"}</strong>
-        </span>
-        <span>
-          Food <strong>{data.food ?? "—"}</strong>
-        </span>
-        <span>
-          XP level <strong>{data.xp_level ?? "—"}</strong>
-        </span>
-      </div>
+      <PlayerVitals data={data} />
       {grid("Equipment", [103, 102, 101, 100, 150], data.inventory, true)}
       {grid(
         "Main inventory",
@@ -124,10 +86,15 @@ export default function InventoryView({ data }: { data: InventorySnapshot }) {
       )}
       {selected && (
         <section className="mcp-item-details">
-          <h3>
-            {itemName(selected.id)} × {selected.count}
-          </h3>
-          <code>{selected.id}</code>
+          <div className="mcp-item-summary">
+            <ItemIcon id={selected.id} />
+            <div>
+              <h3>
+                {itemName(selected.id)} × {selected.count}
+              </h3>
+              <code>{selected.id}</code>
+            </div>
+          </div>
           <p>Slot {selected.slot}</p>
           {selected.metadata_truncated ? (
             <p>Item metadata exceeds the display limit.</p>
@@ -155,6 +122,13 @@ export default function InventoryView({ data }: { data: InventorySnapshot }) {
         {data.position ? ` · ${data.position.join(", ")}` : ""}
       </p>
       <p className="mcp-player-uuid">Server UUID: {data.uuid}</p>
+      <p className="mcp-item-credit">
+        Item renders by{" "}
+        <a href={ITEM_RENDER_SOURCE} target="_blank" rel="noreferrer">
+          mc-assets
+        </a>
+        .
+      </p>
     </div>
   );
 }

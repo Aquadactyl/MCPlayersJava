@@ -50,6 +50,7 @@ export interface InventorySnapshot {
   health: number | null;
   food: number | null;
   xp_level: number | null;
+  xp_progress?: number | null;
   selected_slot: number | null;
   dimension: string | null;
   position: number[] | null;

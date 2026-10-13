@@ -25,6 +25,7 @@ async function fixtures(
     online = names.length,
     sample = ["Steve"],
     game = "MINECRAFT",
+    gameKey = "game_id",
     udp = true,
   } = {},
 ) {
@@ -63,7 +64,7 @@ async function fixtures(
           "Fixture",
           "gametype",
           "SMP",
-          "gamename",
+          gameKey,
           game,
           "version",
           "1.21.4",
@@ -151,6 +152,35 @@ test("full Query with zero players is available and complete", async (t) => {
   assert.equal(result.online, 0);
   assert.equal(result.complete, true);
   assert.deepEqual(result.players, []);
+});
+
+test("also accepts the legacy gamename Minecraft identifier", async (t) => {
+  const result = await queryPlayers(await fixtures(t, { gameKey: "gamename" }));
+  assert.equal(result.source, "query");
+  assert.equal(result.complete, true);
+  assert.deepEqual(
+    result.players.map((player) => player.name),
+    ["Alex", "Steve"],
+  );
+});
+
+test("a non-Minecraft game_id cannot be overridden by a legacy gamename", async () => {
+  const calls = [];
+  const result = await queryPlayers(
+    { queryHost: "localhost", queryPort: 25565, statusHost: "localhost", statusPort: 25565 },
+    async (options) => {
+      calls.push(options.type);
+      return {
+        numplayers: 0,
+        maxplayers: 20,
+        players: [],
+        raw: { game_id: "OTHER", gamename: "MINECRAFT" },
+      };
+    },
+  );
+  assert.deepEqual(calls, ["protocol-gamespy3", "protocol-minecraftvanilla"]);
+  assert.equal(result.source, "status");
+  assert.equal(result.complete, false);
 });
 
 test("falls back to a labelled TCP sample when UDP Query is disabled", async (t) => {

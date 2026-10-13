@@ -18,7 +18,7 @@ export async function getNitroIdentity(name: string, signal?: AbortSignal): Prom
   const data: unknown = JSON.parse(text);
   if (!data || typeof data !== "object") throw new Error("Invalid Nitrocraft identity.");
   const identity = data as Partial<NitroIdentity>;
-  const id = identity.id?.replaceAll("-", "");
+  const id = typeof identity.id === "string" ? identity.id.replaceAll("-", "") : null;
   if (
     !id ||
     !/^[0-9a-f]{32}$/iu.test(id) ||

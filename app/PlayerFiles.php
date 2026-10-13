@@ -19,7 +19,7 @@ class PlayerFiles
         try {
             $response = $this->files->setServer($server)->getHttpClient()->get(
                 '/api/servers/' . $server->uuid . '/files/contents',
-                ['query' => ['file' => $path], 'stream' => true]
+                ['query' => ['file' => $path], 'stream' => true, 'timeout' => 5, 'connect_timeout' => 2, 'read_timeout' => 5]
             );
             $stream = $response->getBody();
             $content = '';

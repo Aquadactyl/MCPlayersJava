@@ -33,6 +33,7 @@ class InventorySnapshot
             }
         }
         ksort($ender);
+        $xpProgress = $this->number($root['XpP'] ?? null);
 
         return [
             'inventory' => array_values($inventory),
@@ -40,6 +41,7 @@ class InventorySnapshot
             'health' => $this->number($root['Health'] ?? null),
             'food' => $this->number($root['foodLevel'] ?? null),
             'xp_level' => $this->number($root['XpLevel'] ?? null),
+            'xp_progress' => $xpProgress !== null && $xpProgress >= 0 && $xpProgress <= 1 ? $xpProgress : null,
             'selected_slot' => is_int($root['SelectedItemSlot'] ?? null) && $root['SelectedItemSlot'] >= 0 && $root['SelectedItemSlot'] <= 8 ? $root['SelectedItemSlot'] : null,
             'dimension' => is_string($root['Dimension'] ?? null) ? mb_substr($root['Dimension'], 0, 128) : null,
             'position' => is_array($root['Pos'] ?? null) && count($root['Pos']) === 3

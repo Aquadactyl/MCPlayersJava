@@ -195,11 +195,34 @@ export default function PlayerDialog({
                 <p>Minecraft Java player</p>
               </div>
             </div>
-            <div className="mcp-dialog-tabs" role="tablist" aria-label="Player details">
+            <div
+              className="mcp-dialog-tabs"
+              role="tablist"
+              aria-label="Player details"
+              onKeyDown={(event) => {
+                if (
+                  !capabilities.inventory ||
+                  !["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)
+                )
+                  return;
+                event.preventDefault();
+                const next =
+                  event.key === "Home"
+                    ? "profile"
+                    : event.key === "End"
+                      ? "inventory"
+                      : tab === "profile"
+                        ? "inventory"
+                        : "profile";
+                setTab(next);
+                document.getElementById(`mcp-${next}-tab`)?.focus();
+              }}
+            >
               <button
                 type="button"
                 role="tab"
                 aria-selected={tab === "profile"}
+                tabIndex={tab === "profile" ? 0 : -1}
                 aria-controls="mcp-profile-panel"
                 id="mcp-profile-tab"
                 onClick={() => setTab("profile")}
@@ -211,6 +234,7 @@ export default function PlayerDialog({
                 type="button"
                 role="tab"
                 aria-selected={tab === "inventory"}
+                tabIndex={tab === "inventory" ? 0 : -1}
                 aria-controls="mcp-inventory-panel"
                 id="mcp-inventory-tab"
                 disabled={!capabilities.inventory}
