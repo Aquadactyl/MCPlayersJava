@@ -31,21 +31,17 @@ class InventoryService
         // Server identity takes priority over Mojang skin identity on offline-mode servers.
         $uuid ??= $this->uuid($knownUuid) ? strtolower($knownUuid) : $this->offlineUuid($name);
         $directory = '/' . $world . '/playerdata';
-        $entries = $this->files->directory($server, $directory);
-        $entry = null;
-        foreach ($entries as $candidate) {
-            if (($candidate['name'] ?? null) === $uuid . '.dat' && ($candidate['file'] ?? true) && !($candidate['symlink'] ?? false)) {
-                $entry = $candidate;
-                break;
+        try {
+            $content = $this->files->read($server, $directory . '/' . $uuid . '.dat', 2097152);
+        } catch (DaemonConnectionException $exception) {
+            // Wings reports missing files as 500 on some versions, including when
+            // the world has not created its playerdata directory yet.
+            if (in_array($exception->getStatusCode(), [404, 500], true)) {
+                throw new HttpException(404, 'No saved inventory was found. The player may not have joined yet, or their UUID is missing from usercache.json.', $exception);
             }
+
+            throw $exception;
         }
-        if ($entry === null) {
-            throw new HttpException(404, 'No saved inventory was found. The player may not have joined yet, or their UUID is missing from usercache.json.');
-        }
-        if ((int) ($entry['size'] ?? 0) > 2097152) {
-            throw new HttpException(413, 'This saved player file is too large to inspect.');
-        }
-        $content = $this->files->read($server, $directory . '/' . $uuid . '.dat', 2097152);
         try {
             $snapshot = $this->snapshots->fromNbt($this->reader->parse($content));
         } catch (\UnexpectedValueException $exception) {
@@ -54,7 +50,7 @@ class InventoryService
 
         return $snapshot + [
             'source' => 'saved_file', 'player' => $name, 'uuid' => $uuid,
-            'saved_at' => is_string($entry['modified'] ?? null) ? $entry['modified'] : null,
+            'saved_at' => null,
             'read_at' => now()->toIso8601String(),
             'state' => [
                 'operator' => $this->listed($server, '/ops.json', $name, $uuid),
