@@ -56,7 +56,7 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-describe("installed Minecraft Players page", () => {
+describe("installed Java Players page", () => {
   it("renders real names and filters case-insensitively", async () => {
     mount();
     await screen.findByText("Alex");

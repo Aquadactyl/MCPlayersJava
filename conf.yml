@@ -1,5 +1,5 @@
 info:
-  name: "Minecraft Players"
+  name: "Java Players"
   identifier: "mcplayers"
   description: "Minecraft player lists, Nitrocraft skins, server actions and saved inventory snapshots."
   version: "1.1.4"

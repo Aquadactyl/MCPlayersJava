@@ -1,6 +1,6 @@
-# Minecraft Players for Aquadactyl
+# Java Players for Aquadactyl
 
-A Blueprint addon that adds a **Players** tab to your Minecraft Java servers.
+A Blueprint addon that adds a **Java Players** tab to your Minecraft Java servers.
 The installable package is [`dist/mcplayers.blueprint`](dist/mcplayers.blueprint).
 
 ## Features
@@ -24,7 +24,7 @@ Version **1.1.3** adds actual Minecraft item images to inventory slots and item
 details. Version **1.1.2** fixes full Query detection on Paper and other Java servers that
 identify Minecraft with `game_id`. Legacy `gamename` replies are also accepted.
 Previously, valid full replies using `game_id` fell back to a status sample even
-with Query enabled and reachable. Install this update and refresh the Players tab.
+with Query enabled and reachable. Install this update and refresh the Java Players tab.
 
 ## Compatibility
 
@@ -61,7 +61,7 @@ docker exec aquadactyl-test-panel-1 blueprint -i mcplayers
 ```
 
 Blueprint registers the backend and frontend, rebuilds assets and refreshes
-application caches. Open **Admin → Extensions → Minecraft Players** for setup
+application caches. Open **Admin → Extensions → Java Players** for setup
 instructions. Use the gear button and choose your Minecraft Java eggs under
 **Route eggs**. Blueprint defaults to showing the tab on every egg; other games
 show a clear unsupported message.
@@ -296,7 +296,7 @@ Validation and environment details are recorded in [VALIDATION.md](VALIDATION.md
 | `components/PlayerVitals.tsx` | Saved health, hunger and XP HUD |
 | `components/hud/` | Bundled Minecraft HUD sprites and source credits |
 | `components/nitrocraft.ts` | Public identity lookup and fixed-origin skin URLs |
-| `components/players.css` | Scoped responsive styling bundled with the Players page |
+| `components/players.css` | Scoped responsive styling bundled with the Java Players page |
 | `app/` | Authorization, query/cache, native command dispatch and bounded NBT snapshot decoding |
 | `private/query.mjs` | Bounded UDP Query / TCP status helper |
 | `routes/client.php` | Authenticated listing, action and inventory endpoints |

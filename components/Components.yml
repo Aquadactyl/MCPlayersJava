@@ -1,6 +1,6 @@
 Navigation:
   Routes:
-    - Name: "Players"
+    - Name: "Java Players"
       Path: "/players"
       Type: "server"
       Component: "PlayersPage"

@@ -90,7 +90,7 @@ export default function PlayersPage() {
           : "Unreachable";
 
   return (
-    <ServerContentBlock title="Players">
+    <ServerContentBlock title="Java Players">
       <div className="mcp-page">
         <header className="mcp-header">
           <div className="mcp-heading">
@@ -99,7 +99,7 @@ export default function PlayersPage() {
             </span>
             <div>
               <p className="mcp-eyebrow">Minecraft Java</p>
-              <h1>Players</h1>
+              <h1>Java Players</h1>
               <p className="mcp-subtitle">Player profiles, server actions and saved inventories.</p>
             </div>
           </div>

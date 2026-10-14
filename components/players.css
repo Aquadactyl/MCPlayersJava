@@ -1,4 +1,4 @@
-/* Scoped styles bundled with the Players page. */
+/* Scoped styles bundled with the Java Players page. */
 .mcp-page {
   color: var(--color-neutral-100, #eceeed);
 }
@@ -421,7 +421,7 @@
   }
 }
 
-/* Imported by players.css and scoped to Minecraft Players. */
+/* Imported by players.css and scoped to Java Players. */
 .mcp-avatar-wrap {
   position: relative;
   display: block;
